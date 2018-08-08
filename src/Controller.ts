@@ -1,10 +1,10 @@
-import express, { Router, Request, Response, Next } from "express";
+import { Router, Request, Response } from "express";
 
 export class Controller {
   public router: Router;
   public handlers: RouteHandler[] = [];
   // Default middleware, override in controller
-  public middleware: (req: Request, res: Response, next: Next) => void = (
+  public middleware: (req: Request, res: Response, next: Function) => void = (
     res,
     req,
     next
@@ -13,15 +13,11 @@ export class Controller {
   "constructor": typeof Controller;
 
   constructor() {
-    this.router = new Router();
+    this.router = Router();
     this.constructor.prototype.handlers.forEach((handler: RouteHandler) => {
       const { method, url, filters, func } = handler;
       const asyncFunc = (req, res, next) => {
-        console.log(this);
-        func
-          .call(this, req, res)
-          .then(next)
-          .catch(next);
+        Promise.resolve(func.call(this, req, res)).catch(next);
       };
 
       if (filters !== undefined) {

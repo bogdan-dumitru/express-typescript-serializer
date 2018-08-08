@@ -1,8 +1,11 @@
 import "reflect-metadata";
-import express, { Router, Request, Response, Next } from "express";
+import express, { Request, Response } from "express";
 import { Controller, Action } from "./Controller";
 import { User } from "./model";
 import { serialize } from "class-transformer";
+import validate from "express-validation";
+import * as validations from "./validations";
+import { debug } from "util";
 
 class UserService {
   getAll() {
@@ -17,10 +20,12 @@ export class RatingsController extends Controller {
   public baseRoute = "ratings/";
   private service = new UserService();
 
-  @Action.get("/")
+  @Action.get("/:videoId", [validate(validations.get())])
   async handleIndex(req: Request, res: Response) {
     res.setHeader("Content-Type", "application/json");
-    res.send(serialize(this.service.getAll(), { groups: ["withSecrets"] }));
+    res.send(
+      serialize(this.service.getAll(), { groups: ["withPhotoSecrets"] })
+    );
   }
 }
 
@@ -36,6 +41,7 @@ export class OtherController extends Controller {
 
   @Action.get("/hello")
   async handleHello(req: Request, res: Response) {
+    debugger;
     res.setHeader("Content-Type", "application/json");
     res.send(
       serialize(this.service.getAll(), {
