@@ -6,5 +6,5 @@
     "ignore": [
         "node_modules/"
     ],
-    "exec": "node --inspect=0.0.0.0:9229 -r ts-node/register src/main.ts"
+    "exec": "node --inspect=0.0.0.0:9230 -r ts-node/register src/main.ts"
 }

@@ -1,11 +1,12 @@
+import "reflect-metadata";
 import express from "express";
 import { validationError } from "./lib/validations";
-import { RatingsController, OtherController } from "./controllers";
+import { PeopleController, PhotosController } from "./controllers";
 import bodyParser from "body-parser";
 
-const ratings = new RatingsController();
-const others = new OtherController();
-const routes = [ratings, others];
+const people = new PeopleController();
+const photos = new PhotosController();
+const routes = [people, photos];
 
 const app = express();
 app.set("host", "localhost");
