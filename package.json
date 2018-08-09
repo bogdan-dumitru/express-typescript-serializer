@@ -4,21 +4,25 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npx nodemon"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "class-transformer": "^0.1.9",
+    "class-validator": "0.9.1",
     "express": "^4.16.3",
     "reflect-metadata": "^0.1.12",
     "ts-node": "^7.0.0",
     "typescript": "^3.0.1",
     "express-validation": "1.0.2",
-    "joi": "13.5.2"
+    "joi": "13.5.2",
+    "body-parser": "1.18.3"
   },
   "devDependencies": {
     "@types/express": "^4.16.0",
-    "@types/joi": "13.4.0"
+    "@types/joi": "13.4.0",
+    "nodemon": "^1.18.3",
+    "tsconfig-paths": "3.5.0"
   }
 }

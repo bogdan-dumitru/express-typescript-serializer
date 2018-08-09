@@ -4,11 +4,12 @@
 
 ```
 $ npm install
-$ npx ts-node src/index.ts
+$ npx nodemon
 ```
 
-Navigate to `localhost:5555/ratings/123`. `localhost:5555/others`, `localhost:5555/others/hello` for 3 routes on the 2 respective controllers.
-Navigate to `localhost:5555/ratings/asdd` to see the validations kick in.
+#### Purpose
+
+Serves as an example project to illustrate proposals for how to handle controllers, validation and serialization.
 
 #### Components
 
