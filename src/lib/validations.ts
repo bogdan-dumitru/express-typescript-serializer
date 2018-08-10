@@ -1,42 +1,65 @@
+import "reflect-metadata";
 import * as express from "express";
 import { plainToClass } from "class-transformer";
 import { Validator, ValidationError } from "class-validator";
+import { interfaces } from "inversify-express-utils";
 
 type Constructor<T> = { new (): T };
 
-export interface ValidationTypes<BodyType, ParamsType> {
-  body?: Constructor<BodyType>;
-  params?: Constructor<ParamsType>;
+export const enum PayloadSource {
+  body = "body",
+  params = "params",
+  query = "query"
 }
 
-export function validate<BodyType, ParamsType>(
-  types: ValidationTypes<BodyType, ParamsType>
+export function withParams<PayloadType>(type: Constructor<PayloadType>) {
+  return withPayloadType(type, PayloadSource.params);
+}
+
+export function withBody<PayloadType>(type: Constructor<PayloadType>) {
+  return withPayloadType(type, PayloadSource.body);
+}
+
+export function withQuery<PayloadType>(type: Constructor<PayloadType>) {
+  return withPayloadType(type, PayloadSource.query);
+}
+
+function withPayloadType<PayloadType>(
+  type: Constructor<PayloadType>,
+  source: PayloadSource
+) {
+  return function(target: any, key: string, value: any) {
+    let metadataList: interfaces.ControllerMethodMetadata[] = Reflect.getMetadata(
+      // https://github.com/inversify/inversify-express-utils/blob/master/src/constants.ts
+      "inversify-express-utils:controller-method",
+      target.constructor
+    );
+    let methodMetadata = metadataList.find(metadata => metadata.key === key);
+    console.log(methodMetadata);
+    if (methodMetadata === undefined) {
+      throw `Could not find method definition for ${key} on ${
+        target.constructor.name
+      } ` + `when defining ${source} type. Check the order of decorators.`;
+    } else {
+      let validateMiddleware = validate(type, source);
+      methodMetadata.middleware.unshift(validateMiddleware);
+    }
+    console.log(methodMetadata);
+  };
+}
+
+let validator = new Validator();
+function validate<PayloadType>(
+  type: Constructor<PayloadType>,
+  source: PayloadSource
 ): express.RequestHandler {
-  let validator = new Validator();
-
   return (req: express.Request, res: express.Response, next) => {
-    let bodyErrors = [],
-      paramsErrors = [];
-    let body, params;
-    if (types.body !== undefined) {
-      body = plainToClass(types.body, req.body);
-      bodyErrors = validator.validateSync(body);
-    }
-    if (types.params !== undefined) {
-      params = plainToClass(types.params, req.params);
-      paramsErrors = validator.validateSync(params);
-    }
-    let errors = [...bodyErrors, ...paramsErrors];
-
+    let payload = plainToClass(type, req[source]);
+    let errors = validator.validateSync(payload);
     if (errors.length > 0) {
       next(errors);
     } else {
-      if (body !== undefined) {
-        req.body = body;
-      }
-      if (params !== undefined) {
-        req.params = params;
-      }
+      req[source] = payload;
       next();
     }
   };
